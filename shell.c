@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 #include "helpers.h"
 
-#define MAX_LINE_LENGTH 1024
+
 
 int main(void) {
     char *line = NULL;
