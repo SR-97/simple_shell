@@ -1,14 +1,19 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int main(int ac, char **av)
-{
-    int i = 1;
+int main(int argc, char **argv) {
+    int i;
+    int sum = 0;
 
-    while (av[i] != NULL)
-    {
-        printf("%s\n", av[i]);
-        i++;
+    printf("argc or ac = %d\n", argc);
+    printf("argv content is argv[]\n");
+
+    for (i = 1; i < argc; i++) {
+        printf("argv[%d] = %s\n", i, argv[i]);
+        sum += atoi(argv[i]);
     }
 
-    return (0);
+    printf("Sum of arguments: %d\n", sum);
+
+    return sum;
 }

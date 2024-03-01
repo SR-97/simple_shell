@@ -1,34 +1,42 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <sys/wait.h>
-#include "helpers.h"
-
-#define MAX_LINE_LENGTH 1024
+#include <string.h>
 
 int main(void) {
-    char *line = NULL;
-    char *args[2];  /* Only two elements: command and NULL */
-    ssize_t read_bytes;  /* Declare read_bytes at the beginning */
-
+    int i = 0;
+    char **array;
+    pid_t child_pid;
     int status;
+    char *buf = NULL;
+    size_t buf_size = 0;
+    char *token;
 
-    do {
-        printf("($) ");
-        read_bytes = getline(&line, NULL, stdin);
-        if (read_bytes == -1) {
-            free(line);
-            break;  /* Exit on Ctrl+D (EOF) */
+    while (1) {
+        write(1, "#cisfun$ ", 9);
+        getline(&buf, &buf_size, stdin);
+        token = strtok(buf, "\t\n");
+        array = malloc(sizeof(char*) * 1024);
+
+        while (token) {
+            array[i] = token;
+            token = strtok(NULL, "\t\n");
+            i++;
         }
-        line[read_bytes - 1] = '\0'; /* Removing the newline character */
+        array[i] = NULL;
+        child_pid = fork();
 
-        args[0] = line;
-        args[1] = NULL;  /* Last element must be NULL for execve */
+        if (child_pid == 0) {
+            if (execve(array[0], array, NULL) == -1)
+                perror("Error");
+        } else {
+            wait(&status);
+        }
 
-        status = execute(args);
-
-        free(line);
-    } while (status);
-
-    return EXIT_SUCCESS;
+        i = 0;
+        free(array);
+    }
 }
+
