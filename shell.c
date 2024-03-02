@@ -3,7 +3,13 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+<<<<<<< HEAD
 #include <string.h>
+=======
+#include "helpers.h"
+
+
+>>>>>>> b15a8fe0f64071b1c2e067593a51b223774758c7
 
 int main(void) {
     int i = 0;
