@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h> 
 
 int main(void) {
     char *buffer = NULL;
@@ -11,13 +12,13 @@ int main(void) {
         printf("$ ");
         characters = getline(&buffer, &bufsize, stdin);
         if (characters == -1) {
-            break;  // Exit on Ctrl+D
+            break; 
         }
-        buffer[characters - 1] = '\0';  // Remove newline character
+        buffer[characters - 1] = '\0';  
         if (fork() == 0) {
             // Child process
             execlp(buffer, buffer, NULL);
-            // If execlp returns, an error occurred
+            
             perror("Error");
             exit(EXIT_FAILURE);
         } else {
@@ -29,3 +30,4 @@ int main(void) {
     free(buffer);
     return 0;
 }
+
