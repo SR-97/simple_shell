@@ -1,48 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-<<<<<<< HEAD
-#include <string.h>
-=======
-#include "helpers.h"
-
-
->>>>>>> b15a8fe0f64071b1c2e067593a51b223774758c7
 
 int main(void) {
-    int i = 0;
-    char **array;
-    pid_t child_pid;
-    int status;
-    char *buf = NULL;
-    size_t buf_size = 0;
-    char *token;
+    char *buffer = NULL;
+    size_t bufsize = 0;
+    ssize_t characters;
 
     while (1) {
-        write(1, "#cisfun$ ", 9);
-        getline(&buf, &buf_size, stdin);
-        token = strtok(buf, "\t\n");
-        array = malloc(sizeof(char*) * 1024);
-
-        while (token) {
-            array[i] = token;
-            token = strtok(NULL, "\t\n");
-            i++;
+        printf("$ ");
+        characters = getline(&buffer, &bufsize, stdin);
+        if (characters == -1) {
+            break;  // Exit on Ctrl+D
         }
-        array[i] = NULL;
-        child_pid = fork();
-
-        if (child_pid == 0) {
-            if (execve(array[0], array, NULL) == -1)
-                perror("Error");
+        buffer[characters - 1] = '\0';  // Remove newline character
+        if (fork() == 0) {
+            // Child process
+            execlp(buffer, buffer, NULL);
+            // If execlp returns, an error occurred
+            perror("Error");
+            exit(EXIT_FAILURE);
         } else {
-            wait(&status);
+            // Parent process
+            wait(NULL);  // Wait for child to finish
         }
-
-        i = 0;
-        free(array);
     }
-}
 
+    free(buffer);
+    return 0;
+}
