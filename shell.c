@@ -1,33 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/wait.h> 
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <string.h>
 
-int main(void) {
-    char *buffer = NULL;
-    size_t bufsize = 0;
-    ssize_t characters;
+    int main(void) {
+    int i = 0;
+    char **array;
+    pid_t child_pid;
+    int status;
+    char *buf = NULL;
+    size_t buf_size = 0;
+    char *token;
 
     while (1) {
-        printf("$ ");
-        characters = getline(&buffer, &bufsize, stdin);
-        if (characters == -1) {
-            break; 
+        write(1, "#cisfun$ ", 9);
+        getline(&buf, &buf_size, stdin);
+        token = strtok(buf, "\t\n");
+        array = malloc(sizeof(char*) * 1024);
+
+        while (token) {
+            array[i] = token;
+            token = strtok(NULL, "\t\n");
+            i++;
         }
-        buffer[characters - 1] = '\0';  
-        if (fork() == 0) {
-            // Child process
-            execlp(buffer, buffer, NULL);
-            
-            perror("Error");
-            exit(EXIT_FAILURE);
+        array[i] = NULL;
+        child_pid = fork();
+        if (child_pid == 0) {
+            if (execve(array[0], array, NULL) == -1)
+                perror("Error");
         } else {
-            // Parent process
-            wait(NULL);  // Wait for child to finish
+            wait(&status);
         }
+
+        i = 0;
+        free(array);
     }
-
-    free(buffer);
-    return 0;
 }
-
